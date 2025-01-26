@@ -1,5 +1,6 @@
 {
-  "name": "ynab-sankeymatic",
+  "name": "sankeymatic-input-for-ynab",
+  "description": "Generate a SankeyMATIC input for your YNAB budget",
   "author": "swissbuechi",
   "license": "Apache-2.0",
   "version": "1.0.0",
@@ -7,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --base=/ynab-sankeymatic/",
+    "build": "vite build --base=/sankeymatic-input-for-ynab/",
     "preview": "vite preview"
   },
   "dependencies": {

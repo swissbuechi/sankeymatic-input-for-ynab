@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h5>SankeyMATIC Configuration</h5>
+    <h5>SankeyMATIC input</h5>
     <textarea class="form-control" rows="10" readonly>{{ flows }}</textarea>
   </div>
 </template>

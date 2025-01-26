@@ -27,7 +27,7 @@
         </div>
 
         <div v-else>
-          <h2>SankeyMATIC config input</h2>
+          <h2>SankeyMATIC input</h2>
           <p>Got to <a href="https://sankeymatic.com/build/" target="_blank" rel="noopener noreferrer">sankeymatic.com/build/</a> and paste to inputs.</p>
           <button class="btn btn-info" @click="copySankeyToClipboard">Copy to clipboard</button>
           <br>

@@ -7,7 +7,7 @@
     <div class="row">
       <div class="col-12 col-md">
         <small class="text-muted">Source:</small>
-        <h5><a href="https://github.com/swissbuechi/ynab-sankeymatic">github.com/swissbuechi/ynab-sankeymatic</a></h5>
+        <h5><a href="https://github.com/swissbuechi/sankeymatic-input-for-ynab">github.com/swissbuechi/sankeymatic-input-for-ynab</a></h5>
       </div>
     </div>
   </footer>

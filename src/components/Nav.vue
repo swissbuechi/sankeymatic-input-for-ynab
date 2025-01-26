@@ -17,7 +17,7 @@
         >
           <img src="@/assets/logo.png" alt="Logo" style="height: 40px; width: 40px;" />
         </div>
-        <h5 class="my-0 font-weight-normal navbar-brand">YNAB SankeyMATIC config</h5>
+        <h5 class="my-0 font-weight-normal navbar-brand">SankeyMATIC input for YNAB</h5>
       </a>
     </div>
   </div>
