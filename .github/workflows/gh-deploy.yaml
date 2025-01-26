@@ -31,7 +31,7 @@ jobs:
       - name: "Install dependencies and build the project"
         run: |
           npm install
-          npm run build
+          vite build --base=/ynab-sankeymatic/
 
       - name: "Upload artifact"
         uses: actions/upload-pages-artifact@v3
