@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --base=/ynab-sankeymatic/",
     "preview": "vite preview"
   },
   "dependencies": {
