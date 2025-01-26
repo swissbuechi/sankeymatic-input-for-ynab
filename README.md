@@ -2,7 +2,7 @@
 
 <img src="src/assets/logo.png" alt="Logo" width="64"/>
 
-<https://swissbuechi.github.io/ynab-sankeymatic>
+<https://swissbuechi.github.io/sankeymatic-input-for-ynab/>
 
 ## Demo
 
