@@ -9,45 +9,28 @@
       <!-- Display an error if we got one -->
       <div v-if="error">
         <h1 class="display-4">Oops!</h1>
-        <p class="lead">{{error}}</p>
+        <p class="lead">{{ error }}</p>
         <button class="btn btn-primary" @click="resetToken">Try Again &gt;</button>
       </div>
 
-      <!-- Otherwise show our app contents -->
+      <!-- Display Sankey flows if available -->
       <div v-else>
-
-        <!-- If we dont have a token ask the user to authorize with YNAB -->
         <form v-if="!ynab.token">
-          <h1 class="display-4">Congrats!</h1>
-          <p class="lead">You have successfully initialized a new YNAB API Application!</p>
-          <p>The next step is the OAuth configuration, you can
-            <a href="https://github.com/ynab/ynab-api-starter-kit#step-2-obtain-an-oauth-client-id-so-the-app-can-access-the-ynab-api">read
-              detailed instructions in the README.md</a>. Essentially:</p>
-          <ul>
-            <li>Make sure to be logged into your YNAB account, go to your <a href="https://app.ynab.com/settings/developer" target="_blank" rel="noopener noreferrer">YNAB Developer Settings</a> and create a new OAuth Application.</li>
-            <li>Enter the URL of this project as a Redirect URI (in addition to the existing three options), then "Save Application."</li>
-            <li>Copy your Client ID and Redirect URI into the <em>src/config.json</em> file of your project.</li>
-            <li>Then build your amazing app!</li>
-          </ul>
-          <p>If you have any questions please reach out to us at <strong>api@ynab.com</strong>.</p>
-          <p>&nbsp;</p>
-
-          <div class="form-group">
-            <h2>Hello!</h2>
-            <p class="lead">If you would like to use this App, please authorize with YNAB!</p>
-            <button @click="authorizeWithYNAB" class="btn btn-primary">Authorize This App With YNAB &gt;</button>
-          </div>
+          <h1 class="display-4">Authorize YNAB</h1>
+          <p class="lead">Authorize this app with YNAB to generate Sankey flows.</p>
+          <button @click="authorizeWithYNAB" class="btn btn-primary">Authorize This App With YNAB &gt;</button>
         </form>
 
-        <!-- Otherwise if we have a token, show the budget select -->
-        <Budgets v-else-if="!budgetId" :budgets="budgets" :selectBudget="selectBudget" />
-
-        <!-- If a budget has been selected, display transactions from that budget -->
-        <div v-else>
-          <Transactions :transactions="transactions" />
-          <button class="btn btn-info" @click="budgetId = null">&lt; Select Another Budget</button>
+        <div v-else-if="!budgetId">
+          <h2>Select a Budget</h2>
+          <Budgets :budgets="budgets" :selectBudget="selectBudget" />
         </div>
 
+        <div v-else>
+          <h2>SankeyMATIC-Compatible Flows</h2>
+          <pre>{{ sankeyFlows }}</pre>
+          <button class="btn btn-info" @click="budgetId = null">&lt; Select Another Budget</button>
+        </div>
       </div>
 
       <Footer />
@@ -56,21 +39,14 @@
 </template>
 
 <script>
-// Hooray! Here comes YNAB!
 import * as ynab from 'ynab';
-
-// Import our config for YNAB
 import config from './config.json';
-
-// Import Our Components to Compose Our App
 import Nav from './components/Nav.vue';
 import Footer from './components/Footer.vue';
 import Budgets from './components/Budgets.vue';
-import Transactions from './components/Transactions.vue';
 
 export default {
-  // The data to feed our templates
-  data () {
+  data() {
     return {
       ynab: {
         clientId: config.clientId,
@@ -82,88 +58,125 @@ export default {
       error: null,
       budgetId: null,
       budgets: [],
-      transactions: [],
-    }
+      sankeyFlows: '',
+    };
   },
-  // When this component is created, check whether we need to get a token,
-  // budgets or display the transactions
   created() {
     this.ynab.token = this.findYNABToken();
     if (this.ynab.token) {
-      this.api = new ynab.api(this.ynab.token);
-      if (!this.budgetId) {
-        this.getBudgets();
-      } else {
-        this.selectBudget(this.budgetId);
-      }
+      this.api = new ynab.API(this.ynab.token);
+      this.getBudgets();
     }
   },
   methods: {
-    // This uses the YNAB API to get a list of budgets
-    getBudgets() {
+    async getBudgets() {
       this.loading = true;
-      this.error = null;
-      this.api.budgets.getBudgets().then((res) => {
+      try {
+        const res = await this.api.budgets.getBudgets();
         this.budgets = res.data.budgets;
-      }).catch((err) => {
-        this.error = err.error.detail;
-      }).finally(() => {
+      } catch (err) {
+        this.error = err.error.detail || 'Failed to fetch budgets';
+      } finally {
         this.loading = false;
-      });
+      }
     },
-    // This selects a budget and gets all the transactions in that budget
-    selectBudget(id) {
+    async selectBudget(id) {
       this.loading = true;
-      this.error = null;
       this.budgetId = id;
-      this.transactions = [];
-      this.api.transactions.getTransactions(id).then((res) => {
-        this.transactions = res.data.transactions;
-      }).catch((err) => {
-        this.error = err.error.detail;
-      }).finally(() => {
+
+      try {
+        const { data: categoryData } = await this.api.categories.getCategories(id);
+        const { data: monthData } = await this.api.months.getBudgetMonth(id, 'current');
+        const flows = this.generateSankeyFlows(categoryData.category_groups, monthData.month);
+        this.sankeyFlows = flows;
+      } catch (err) {
+        this.error = err.error.detail || 'Failed to fetch budget details';
+      } finally {
         this.loading = false;
-      });
+      }
     },
-    // This builds a URI to get an access token from YNAB
-    // https://api.ynab.com/#outh-applications
+    generateSankeyFlows(categoryGroups, month) {
+      const root = {
+        id: '__ROOT__',
+        name: 'Budgeted',
+        value: Math.floor(Math.abs(month.activity) / 1000),
+        children: [],
+      };
+
+      const categoriesByGroupId = month.categories.reduce((acc, category) => {
+        if (acc[category.category_group_id]) {
+          acc[category.category_group_id].push(category);
+        } else {
+          acc[category.category_group_id] = [category];
+        }
+        return acc;
+      }, {});
+
+      categoryGroups.forEach((group) => {
+        if (group.hidden || group.deleted || !categoriesByGroupId[group.id]) return;
+
+        const children = categoriesByGroupId[group.id]
+          .filter((category) => !category.hidden && !category.deleted && Math.abs(category.activity) > 0)
+          .map((category) => ({
+            id: category.id,
+            name: category.name,
+            value: Math.floor(Math.abs(category.activity) / 1000),
+            children: [],
+          }));
+
+        if (children.length > 0) {
+          root.children.push({
+            id: group.id,
+            name: group.name,
+            value: children.reduce((sum, child) => sum + child.value, 0),
+            children,
+          });
+        }
+      });
+
+      return this.generateSankeyFormat(root);
+    },
+    generateSankeyFormat(node) {
+      const flows = [];
+
+      const traverse = (parent, children) => {
+        children.forEach((child) => {
+          flows.push(`${parent.name} [${child.value}] ${child.name}`);
+          if (child.children.length > 0) {
+            traverse(child, child.children);
+          }
+        });
+      };
+
+      traverse(node, node.children);
+      return flows.join('\n');
+    },
     authorizeWithYNAB(e) {
       e.preventDefault();
       const uri = `https://app.ynab.com/oauth/authorize?client_id=${this.ynab.clientId}&redirect_uri=${this.ynab.redirectUri}&response_type=token`;
       location.replace(uri);
     },
-    // Method to find a YNAB token
-    // First it looks in the location.hash and then sessionStorage
     findYNABToken() {
-      let token = null;
-      const search = window.location.hash.substring(1).replace(/&/g, '","').replace(/=/g,'":"');
-      if (search && search !== '') {
-        // Try to get access_token from the hash returned by OAuth
-        const params = JSON.parse('{"' + search + '"}', function(key, value) {
-          return key === '' ? value : decodeURIComponent(value);
-        });
-        token = params.access_token;
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        const params = Object.fromEntries(new URLSearchParams(hash));
+        const token = params.access_token;
         sessionStorage.setItem('ynab_access_token', token);
         window.location.hash = '';
-      } else {
-        // Otherwise try sessionStorage
-        token = sessionStorage.getItem('ynab_access_token');
+        return token;
       }
-      return token;
+      return sessionStorage.getItem('ynab_access_token');
     },
-    // Clear the token and start authorization over
     resetToken() {
       sessionStorage.removeItem('ynab_access_token');
       this.ynab.token = null;
       this.error = null;
-    }
+    },
   },
-  // Specify which components we want to make available to our templates
   components: {
     Nav,
     Footer,
     Budgets,
-    Transactions
-  }
-}
+  },
+};
 </script>
