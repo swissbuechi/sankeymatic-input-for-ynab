@@ -1,6 +1,6 @@
 {
-    "name": "YNAB SankeyMATIC config",
-    "short_name": "YNAB-Sankey",
+    "name": "SankeyMATIC input for YNAB",
+    "short_name": "Sankey for YNAB",
     "icons": [
         {
             "src": "./android-chrome-192x192.png",
@@ -13,7 +13,7 @@
             "type": "image/png"
         }
     ],
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
+    "theme_color": "#593196",
+    "background_color": "#593196",
     "display": "standalone"
 }
