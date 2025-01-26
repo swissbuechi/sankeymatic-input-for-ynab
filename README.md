@@ -1,6 +1,6 @@
 # YNAB SankeyMATIC config
 
-<img src="public/logo.png" alt="Logo" width="64"/>
+<img src="src/assets/logo.png" alt="Logo" width="64"/>
 
 <https://swissbuechi.github.io/ynab-sankeymatic>
 

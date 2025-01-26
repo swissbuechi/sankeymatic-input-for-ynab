@@ -15,7 +15,7 @@
             margin-right: 10px;
           "
         >
-          <img src="/logo.png" alt="Logo" style="height: 40px; width: 40px;" />
+          <img src="@/assets/logo.png" alt="Logo" style="height: 40px; width: 40px;" />
         </div>
         <h5 class="my-0 font-weight-normal navbar-brand">YNAB SankeyMATIC config</h5>
       </a>
