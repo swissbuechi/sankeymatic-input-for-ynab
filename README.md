@@ -16,7 +16,7 @@ Without **any** prior knowledge, it allows you to build:
 
 The starter project invites a user to authorize YNAB to share information with the project, provides a choice of budget, then displays all the transactions. It's probably not very useful, but it demonstrates several key features involved in building a YNAB web app.
 
-View a [live demo](https://ynab.github.io/ynab-api-starter-kit/) of what this project will start off looking like or take a look below.
+View a [live demo](https://swissbuechi.github.io/ynab-sankeymatic/) of what this project will start off looking like or take a look below.
 
 ![Screen recording on 2018-03-28 at 12:37:23](https://user-images.githubusercontent.com/759811/38046244-c9806f0a-3284-11e8-8788-509912ec79c2.gif)
 
@@ -60,7 +60,7 @@ Every YNAB app requires their own OAuth Application credentials.
    ```json
    {
      "clientId": "<your client ID>",
-     "redirectUri": "https://your-github-username.github.io/your-new-ynab-project/"
+     "redirectUri": "https://swissbuechi.github.io/ynab-sankeymatic/"
    }
    ```
 
@@ -71,7 +71,7 @@ Every YNAB app requires their own OAuth Application credentials.
 When committing the change to `src/config.json` to your repository, a new compilation cycle is triggered through GitHub Actions. Typically, this should take about 2-3 minutes, afterwhich your project can be accessible from:
 
 ```
-https://your-github-username.github.io/your-new-ynab-project/
+https://swissbuechi.github.io/ynab-sankeymatic/
 ```
 
 You can also read more about how to see [the output of GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions#viewing-the-activity-for-a-workflow-run).
@@ -162,7 +162,7 @@ This will:
 Through this tutorial, we have been serving the app through GitHub Pages at the following URL:
 
 ```
-https://your-github-username.github.io/your-new-ynab-project/
+https://swissbuechi.github.io/ynab-sankeymatic/
 ```
 
 However, it is very easy to serve this app from its own custom domain name. Although this is beyond the scope of this tutorial, the steps involve:
