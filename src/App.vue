@@ -168,7 +168,7 @@ export default {
     },
     authorizeWithYNAB(e) {
       e.preventDefault();
-      const uri = `https://app.ynab.com/oauth/authorize?client_id=${this.ynab.clientId}&redirect_uri=${this.ynab.redirectUri}&response_type=token`;
+      const uri = `https://app.ynab.com/oauth/authorize?client_id=${this.ynab.clientId}&redirect_uri=${this.ynab.redirectUri}&response_type=token&scope=read-only`;
       location.replace(uri);
     },
     findYNABToken() {
