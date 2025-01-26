@@ -112,11 +112,16 @@ export default {
         return acc;
       }, {});
 
+      const excludedCategories = [
+        'Internal Master Category',
+        'Inflow: Ready to Assign',
+      ];
+      
       categoryGroups.forEach((group) => {
         if (group.hidden || group.deleted || !categoriesByGroupId[group.id]) return;
 
         const children = categoriesByGroupId[group.id]
-          .filter((category) => !category.hidden && !category.deleted && Math.abs(category.activity) > 0)
+          .filter((category) =>!category.hidden && !category.deleted && Math.abs(category.activity) > 0 &&!excludedCategories.includes(category.name))
           .map((category) => ({
             id: category.id,
             name: category.name,
