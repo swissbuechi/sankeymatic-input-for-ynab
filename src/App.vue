@@ -17,7 +17,7 @@
       <div v-else>
         <form v-if="!ynab.token">
           <h1 class="display-4">Authorize YNAB</h1>
-          <p class="lead">Authorize this app with YNAB to generate Sankey flows.</p>
+          <p class="lead">Authorize this app with YNAB to generate a input config for <a href="https://sankeymatic.com/build/" target="_blank" rel="noopener noreferrer">SankeyMATIC</a>.</p>
           <button @click="authorizeWithYNAB" class="btn btn-primary">Authorize This App With YNAB &gt;</button>
         </form>
 
@@ -27,9 +27,13 @@
         </div>
 
         <div v-else>
-          <h2>SankeyMATIC-Compatible Flows</h2>
+          <h2>SankeyMATIC config input</h2>
+          <p>Got to <a href="https://sankeymatic.com/build/" target="_blank" rel="noopener noreferrer">sankeymatic.com/build/</a> and paste to inputs.</p>
+          <button class="btn btn-info" @click="copySankeyToClipboard">Copy to clipboard</button>
+          <br>
+          <br>
           <pre>{{ sankeyFlows }}</pre>
-          <button class="btn btn-info" @click="budgetId = null">&lt; Select Another Budget</button>
+          <button class="btn" @click="budgetId = null">&lt; Select Another Budget</button>
         </div>
       </div>
 
@@ -116,7 +120,7 @@ export default {
         'Internal Master Category',
         'Inflow: Ready to Assign',
       ];
-      
+
       categoryGroups.forEach((group) => {
         if (group.hidden || group.deleted || !categoriesByGroupId[group.id]) return;
 
@@ -138,12 +142,12 @@ export default {
           });
         }
       });
-
+      
       return this.generateSankeyFormat(root);
     },
     generateSankeyFormat(node) {
       const flows = [];
-
+      
       const traverse = (parent, children) => {
         children.forEach((child) => {
           flows.push(`${parent.name} [${child.value}] ${child.name}`);
@@ -152,9 +156,15 @@ export default {
           }
         });
       };
-
+      
       traverse(node, node.children);
       return flows.join('\n');
+    },
+    copySankeyToClipboard() {
+      navigator.clipboard.writeText(this.sankeyFlows).then(() => {
+      }).catch((err) => {
+        console.error('Failed to copy text: ', err);
+      });
     },
     authorizeWithYNAB(e) {
       e.preventDefault();
