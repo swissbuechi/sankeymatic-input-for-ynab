@@ -2,6 +2,8 @@
 
 <img src="public/logo.png" alt="Logo" width="64"/>
 
+<https://swissbuechi.github.io/ynab-sankeymatic>
+
 ## Demo
 
 ![Demo](docs/demo.gif)
