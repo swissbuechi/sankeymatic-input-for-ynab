@@ -47,7 +47,6 @@
 
 <script>
 import * as ynab from 'ynab';
-import config from './config.json';
 import Nav from './components/Nav.vue';
 import Footer from './components/Footer.vue';
 import Budgets from './components/Budgets.vue';
@@ -56,8 +55,8 @@ export default {
   data() {
     return {
       ynab: {
-        clientId: config.clientId,
-        redirectUri: config.redirectUri,
+        clientId: import.meta.env.VITE_CLIENT_ID,
+        redirectUri: import.meta.env.VITE_REDIRECT_URI,
         token: null,
         api: null,
       },
