@@ -2,18 +2,14 @@
   <div id="app">
     <Nav />
     <div class="container">
-
-      <!-- Display a loading message if loading -->
       <h1 v-if="loading" class="display-4">Loading...</h1>
 
-      <!-- Display an error if we got one -->
       <div v-if="error">
         <h1 class="display-4">Oops!</h1>
         <p class="lead">{{ error }}</p>
         <button class="btn btn-primary" @click="resetToken">Try Again &gt;</button>
       </div>
 
-      <!-- Display Sankey flows if available -->
       <div v-else>
         <form v-if="!ynab.token">
           <h1 class="display-4">Authorize YNAB</h1>
@@ -27,11 +23,18 @@
         </div>
 
         <div v-else>
+          <h2>Select a Month</h2>
+          <select v-model="selectedMonth" @change="selectMonth">
+            <option v-for="month in months" :key="month.month" :value="month.month">
+              {{ month.name }}
+            </option>
+            <option v-if="months.length === 0" disabled>No months available</option>
+          </select>
+
           <h2>SankeyMATIC input</h2>
-          <p>Got to <a href="https://sankeymatic.com/build/" target="_blank" rel="noopener noreferrer">sankeymatic.com/build/</a> and paste to inputs.</p>
+          <p>Go to <a href="https://sankeymatic.com/build/" target="_blank" rel="noopener noreferrer">sankeymatic.com/build/</a> and paste into inputs.</p>
           <button class="btn btn-info" @click="copySankeyToClipboard">Copy to clipboard</button>
-          <br>
-          <br>
+          <br><br>
           <pre>{{ sankeyFlows }}</pre>
           <button class="btn" @click="budgetId = null">&lt; Select Another Budget</button>
         </div>
@@ -44,7 +47,6 @@
 
 <script>
 import * as ynab from 'ynab';
-import config from './config.json';
 import Nav from './components/Nav.vue';
 import Footer from './components/Footer.vue';
 import Budgets from './components/Budgets.vue';
@@ -53,8 +55,8 @@ export default {
   data() {
     return {
       ynab: {
-        clientId: config.clientId,
-        redirectUri: config.redirectUri,
+        clientId: import.meta.env.VITE_CLIENT_ID,
+        redirectUri: import.meta.env.VITE_REDIRECT_URI,
         token: null,
         api: null,
       },
@@ -63,6 +65,8 @@ export default {
       budgetId: null,
       budgets: [],
       sankeyFlows: '',
+      months: [],
+      selectedMonth: 'current'
     };
   },
   created() {
@@ -90,11 +94,45 @@ export default {
 
       try {
         const { data: categoryData } = await this.api.categories.getCategories(id);
-        const { data: monthData } = await this.api.months.getBudgetMonth(id, 'current');
-        const flows = this.generateSankeyFlows(categoryData.category_groups, monthData.month);
-        this.sankeyFlows = flows;
+        const { data: monthsData } = await this.api.months.getBudgetMonths(id); // Fetch all months
+
+        console.log('Months Data:', monthsData); // Debugging: Check structure
+
+        // Ensure months are formatted correctly
+        this.months = monthsData.months.map(month => ({
+          month: month.month, // Already in YYYY-MM-DD format
+          name: new Date(month.month).toLocaleString('default', { month: 'long', year: 'numeric' }) // Format for UI
+        }));
+
+        // Default to the latest month if no selection
+        this.selectedMonth = this.months[0]?.month || null;
+        
+        // Fetch data for the default month
+        if (this.selectedMonth) {
+          this.selectMonth();
+        }
+
       } catch (err) {
         this.error = err.error.detail || 'Failed to fetch budget details';
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async selectMonth() {
+      if (!this.selectedMonth || !this.budgetId) return;
+
+      this.loading = true;
+
+      try {
+        const { data: categoryData } = await this.api.categories.getCategories(this.budgetId);
+        const { data: monthData } = await this.api.months.getBudgetMonth(this.budgetId, this.selectedMonth);
+
+        console.log('Selected Month Data:', monthData); // Debugging: Verify data structure
+
+        this.sankeyFlows = this.generateSankeyFlows(categoryData.category_groups, monthData.month);
+      } catch (err) {
+        this.error = err.error.detail || 'Failed to fetch budget details for selected month';
       } finally {
         this.loading = false;
       }
