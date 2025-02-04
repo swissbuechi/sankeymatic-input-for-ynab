@@ -1,20 +1,19 @@
 <template>
-  <div>
-    <h2>Privacy Policy</h2>
-    <p>
-      This website does not store any information from you or your YNAB account.
-      All data retrieved from the YNAB API is stored only in your browser and is
-      never transmitted to any other location or third-party.
-    </p>
-  </div>
-  <div class="row">
-    <div class="col-12 col-md">
-      <small class="text-muted">Source:</small>
-      <h5>
-        <a href="https://github.com/swissbuechi/sankeymatic-input-for-ynab"
-          >github.com/swissbuechi/sankeymatic-input-for-ynab</a
-        >
-      </h5>
+    <div>
+        <h2>Privacy Policy</h2>
+        <p>
+            This website does not store any information from you or your YNAB account.
+            All data retrieved from the YNAB API is stored only in your browser and is
+            never transmitted to any other location or third-party.
+        </p>
     </div>
-  </div>
+    <div class="row">
+        <div class="col-12 col-md">
+            <small class="text-muted">Source:</small>
+            <h5>
+                <a
+                    href="https://github.com/swissbuechi/sankeymatic-input-for-ynab">github.com/swissbuechi/sankeymatic-input-for-ynab</a>
+            </h5>
+        </div>
+    </div>
 </template>
